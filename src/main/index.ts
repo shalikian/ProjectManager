@@ -1,11 +1,12 @@
 import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { registerIpcHandlers } from './ipc-handlers'
+import { registerIpcHandlers, setupRegistryPush } from './ipc-handlers'
 import { getCredentialStore, registerCredentialHandlers } from './credentials'
 import { registerEngineHandlers } from './engine'
 import { registerWorkflowHandlers } from './workflow'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
+import { PluginLoader } from './plugins/plugin-loader'
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -128,6 +129,14 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(menu)
 
   registerEngineHandlers(ipcMain, mainWindow.webContents, key => store.getSecret(key))
+
+  // Set up registry push so renderer gets notified when plugins load/change
+  setupRegistryPush(mainWindow.webContents)
+
+  // Load plugins from the plugins/ directory next to the app root
+  const pluginsDir = join(app.getAppPath(), '..', 'plugins')
+  const loader = new PluginLoader(pluginsDir)
+  loader.loadAll()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

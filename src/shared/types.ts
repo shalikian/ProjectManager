@@ -22,7 +22,13 @@ export interface NodeData {
   [key: string]: unknown
 }
 
-export type NodeType = 'imageSource' | 'filter' | 'output' | 'custom'
+/**
+ * Built-in node type identifiers.
+ * Plugin nodes use their definition id (e.g. 'utility.text') which is
+ * not listed here — the type is intentionally broadened to string so
+ * the flow store and factory can handle dynamic plugin node types.
+ */
+export type NodeType = 'imageSource' | 'filter' | 'output' | 'custom' | string
 
 // ─── Port Type System ─────────────────────────────────────────────────────────
 

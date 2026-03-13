@@ -39,6 +39,14 @@ const api: ElectronAPI = {
     setTitle: (title: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.WORKFLOW_SET_TITLE, title)
   },
+  nodes: {
+    listAll: () => ipcRenderer.invoke(IPC_CHANNELS.NODES_LIST_ALL),
+    onRegistryChanged: (cb: (definitions: unknown[]) => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, defs: unknown[]) => cb(defs)
+      ipcRenderer.on(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
+      return () => ipcRenderer.off(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
+    }
+  },
   ipcRenderer: {
     on: (channel: string, callback: (...args: unknown[]) => void) => {
       if (!ALLOWED_LISTENER_CHANNELS.includes(channel)) return

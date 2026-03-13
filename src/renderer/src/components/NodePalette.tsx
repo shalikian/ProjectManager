@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useFlowStore } from '../store/flow-store'
-import type { NodeType } from '../../../shared/types'
+import type { NodeType, NodeDefinition } from '../../../shared/types'
 import {
   BUILT_IN_PALETTE,
   filterEntries,
@@ -44,18 +44,60 @@ function EmptyState(): React.JSX.Element {
   )
 }
 
+/** Convert a NodeDefinition from the plugin registry to a PaletteEntry. */
+function definitionToEntry(def: NodeDefinition): PaletteEntry {
+  return {
+    type: def.id,
+    name: def.name,
+    category: def.category,
+    description: def.description ?? '',
+    inputCount: def.inputs.length,
+    outputCount: def.outputs.length
+  }
+}
+
 /**
  * Left sidebar node palette.
- * Displays built-in nodes grouped by category with search filtering.
- * Items can be clicked to add at default position, or dragged onto canvas.
+ * Displays built-in nodes and plugin nodes grouped by category with search filtering.
+ * Plugin nodes are fetched from the main process registry via IPC and kept
+ * up-to-date via the NODES_REGISTRY_CHANGED push channel.
  */
 export default function NodePalette(): React.JSX.Element {
   const { addNode } = useFlowStore()
   const [query, setQuery] = useState('')
+  const [pluginEntries, setPluginEntries] = useState<PaletteEntry[]>([])
+
+  useEffect(() => {
+    const nodesApi = window.electron?.nodes
+    if (!nodesApi) return
+
+    // Initial fetch
+    nodesApi.listAll().then((defs: unknown[]) => {
+      const entries = (defs as NodeDefinition[]).map(definitionToEntry)
+      setPluginEntries(entries)
+    }).catch((err: unknown) => {
+      console.error('[NodePalette] Failed to fetch node definitions:', err)
+    })
+
+    // Subscribe to live updates (hot-reload / new plugins)
+    const unsubscribe = nodesApi.onRegistryChanged((defs: unknown[]) => {
+      const entries = (defs as NodeDefinition[]).map(definitionToEntry)
+      setPluginEntries(entries)
+    })
+
+    return unsubscribe
+  }, [])
+
+  const allEntries = useMemo(() => {
+    // Deduplicate: built-in entries take precedence over plugin entries
+    const builtInTypes = new Set(BUILT_IN_PALETTE.map(e => e.type))
+    const uniquePlugins = pluginEntries.filter(e => !builtInTypes.has(e.type))
+    return [...BUILT_IN_PALETTE, ...uniquePlugins]
+  }, [pluginEntries])
 
   const filtered = useMemo(
-    () => filterEntries(BUILT_IN_PALETTE, query),
-    [query]
+    () => filterEntries(allEntries, query),
+    [allEntries, query]
   )
 
   const grouped = useMemo(() => groupByCategory(filtered), [filtered])
