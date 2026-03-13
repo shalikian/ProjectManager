@@ -37,6 +37,18 @@ export function resolvePortType(typeId: string): PortType {
   return PORT_TYPE_REGISTRY[typeId] ?? PORT_TYPE_REGISTRY.ANY
 }
 
+/**
+ * Returns true if a source port type is compatible with a target port type.
+ * Rules:
+ *   - ANY source can connect to any target.
+ *   - ANY target can accept any source.
+ *   - Otherwise, both types must match.
+ */
+export function isTypeCompatible(sourceTypeId: string, targetTypeId: string): boolean {
+  if (sourceTypeId === 'ANY' || targetTypeId === 'ANY') return true
+  return sourceTypeId === targetTypeId
+}
+
 // ─── Plugin / Node Definition types ──────────────────────────────────────────
 
 /** Describes a single input or output port on a node. */

@@ -43,6 +43,46 @@
   }
 }
 
+/* ─── Connection drag handle states ──────────────────────────── */
+
+/**
+ * During a connection drag, all handles receive .handle-invalid-target.
+ * Valid handles (matched by React Flow) get .react-flow__handle-connecting
+ * and .react-flow__handle-valid, so we override their appearance.
+ */
+.handle-invalid-target {
+  opacity: 0.3;
+  filter: grayscale(80%);
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.react-flow__handle-connecting {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.react-flow__handle-valid {
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: 0 0 6px 2px currentColor;
+}
+
+/* Shake animation for rejected connection attempts */
+@keyframes connection-reject-shake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-4px); }
+  40%  { transform: translateX(4px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+.connection-rejected {
+  animation: connection-reject-shake 0.35s ease;
+}
+
+/* ─── React Flow overrides for dark theme ─────────────────────── */
+
 /* React Flow overrides for dark theme */
 .react-flow__background {
   background-color: #1a1a2e;
