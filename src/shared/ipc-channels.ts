@@ -21,7 +21,20 @@ export const IPC_CHANNELS = {
   CREDENTIALS_LIST: 'credentials:list',
   CREDENTIALS_DELETE: 'credentials:delete',
   CREDENTIALS_TEST: 'credentials:test',
-  CREDENTIALS_GET_MASKED: 'credentials:get-masked'
+  CREDENTIALS_GET_MASKED: 'credentials:get-masked',
+
+  // Workflow serialization channels
+  WORKFLOW_SAVE: 'workflow:save',
+  WORKFLOW_SAVE_AS: 'workflow:save-as',
+  WORKFLOW_OPEN: 'workflow:open',
+  WORKFLOW_NEW: 'workflow:new',
+  WORKFLOW_GET_RECENT: 'workflow:get-recent',
+  WORKFLOW_SET_TITLE: 'workflow:set-title',
+  WORKFLOW_MENU_SAVE: 'workflow:menu-save',
+  WORKFLOW_MENU_SAVE_AS: 'workflow:menu-save-as',
+  WORKFLOW_MENU_OPEN: 'workflow:menu-open',
+  WORKFLOW_MENU_NEW: 'workflow:menu-new',
+  WORKFLOW_MENU_OPEN_RECENT: 'workflow:menu-open-recent'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]
