@@ -1,0 +1,9 @@
+{
+  "name": "vertex-ai",
+  "version": "1.0.0",
+  "description": "Google Vertex AI node pack: Nano Banana (Gemini) and Imagen nodes",
+  "nodepack": [
+    "nano-banana.js",
+    "imagen.js"
+  ]
+}
