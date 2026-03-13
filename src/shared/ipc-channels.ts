@@ -34,7 +34,17 @@ export const IPC_CHANNELS = {
   WORKFLOW_MENU_SAVE_AS: 'workflow:menu-save-as',
   WORKFLOW_MENU_OPEN: 'workflow:menu-open',
   WORKFLOW_MENU_NEW: 'workflow:menu-new',
-  WORKFLOW_MENU_OPEN_RECENT: 'workflow:menu-open-recent'
+  WORKFLOW_MENU_OPEN_RECENT: 'workflow:menu-open-recent',
+
+  // Gallery / auto-save channels
+  GALLERY_LIST: 'gallery:list',
+  GALLERY_SAVE_IMAGE: 'gallery:save-image',
+  GALLERY_DELETE: 'gallery:delete',
+  GALLERY_OPEN_FOLDER: 'gallery:open-folder',
+  GALLERY_COPY_CLIPBOARD: 'gallery:copy-clipboard',
+  GALLERY_GET_OUTPUT_DIR: 'gallery:get-output-dir',
+  GALLERY_SET_OUTPUT_DIR: 'gallery:set-output-dir',
+  GALLERY_ITEM_SAVED: 'gallery:item-saved'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

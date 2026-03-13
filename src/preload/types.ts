@@ -9,7 +9,15 @@ import type {
   RecentFileEntry
 } from '../shared/workflow-types'
 
+import type {
+  GalleryItem,
+  GallerySaveRequest,
+  GallerySaveResult,
+  GalleryListResult
+} from '../shared/gallery-types'
+
 export type { WorkflowFile, WorkflowIpcResult, RecentFileEntry }
+export type { GalleryItem, GallerySaveRequest, GallerySaveResult, GalleryListResult }
 
 export interface SaveCredentialRequest {
   key: string
@@ -77,11 +85,32 @@ export interface NodesAPI {
   onRegistryChanged: (cb: (definitions: unknown[]) => void) => () => void
 }
 
+/** Gallery / auto-save API exposed to the renderer. */
+export interface GalleryAPI {
+  /** List all gallery items from the output directory. */
+  list: () => Promise<GalleryListResult>
+  /** Save a generated image and return the gallery item. */
+  saveImage: (req: GallerySaveRequest) => Promise<GallerySaveResult>
+  /** Delete a gallery item (removes PNG, thumb, JSON). */
+  delete: (item: GalleryItem) => Promise<{ ok: boolean; error?: string }>
+  /** Reveal a file in the OS file explorer. */
+  openFolder: (filePath: string) => Promise<{ ok: boolean; error?: string }>
+  /** Copy image data URL to clipboard. */
+  copyToClipboard: (dataUrl: string) => Promise<{ ok: boolean; error?: string }>
+  /** Get the current output directory path. */
+  getOutputDir: () => Promise<string>
+  /** Set the output directory (shows dialog if dir is omitted). */
+  setOutputDir: (dir?: string) => Promise<{ ok: boolean; dir?: string; cancelled?: boolean; error?: string }>
+  /** Subscribe to gallery:item-saved push events. */
+  onItemSaved: (callback: (item: GalleryItem) => void) => () => void
+}
+
 export interface ElectronAPI {
   getVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
   credentials: CredentialsAPI
   workflow: WorkflowAPI
   nodes: NodesAPI
+  gallery: GalleryAPI
   ipcRenderer: IpcListenerBridge
 }
