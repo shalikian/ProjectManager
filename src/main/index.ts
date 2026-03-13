@@ -137,8 +137,9 @@ app.whenReady().then(() => {
   setupRegistryPush(mainWindow.webContents)
 
   // Load plugins from the plugins/ directory in the project root
+  // __dirname = out/main/ in bundled output, so ../.. reaches project root
   const pluginsDir = is.dev
-    ? join(app.getAppPath(), 'plugins')
+    ? join(__dirname, '..', '..', 'plugins')
     : join(app.getAppPath(), '..', 'plugins')
   const loader = new PluginLoader(pluginsDir)
   loader.loadAll()
