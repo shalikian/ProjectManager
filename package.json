@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@electron-toolkit/utils": "^4.0.0",
+    "@google-cloud/aiplatform": "^6.5.0",
+    "@google/genai": "^1.45.0",
     "@xyflow/react": "^12.3.6",
     "chokidar": "^5.0.0",
     "electron-updater": "^6.1.7",
