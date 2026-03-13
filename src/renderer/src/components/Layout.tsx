@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useUiStore } from '../store/ui-store'
 import NodePalette from './NodePalette'
 import Canvas from './Canvas'
 import PropertiesPanel from './PropertiesPanel'
 import StatusBar from './StatusBar'
+import SettingsDialog from './settings/SettingsDialog'
 
 const LEFT_PANEL_WIDTH = 250
 const RIGHT_PANEL_WIDTH = 300
@@ -68,7 +69,13 @@ function RightPanel({ isOpen }: { isOpen: boolean }): React.JSX.Element {
 }
 
 export default function Layout(): React.JSX.Element {
-  const { leftPanelOpen, rightPanelOpen } = useUiStore()
+  const { leftPanelOpen, rightPanelOpen, settingsOpen, openSettings, closeSettings } = useUiStore()
+
+  // Listen for the main-process "open settings" IPC event (File → Settings menu)
+  useEffect(() => {
+    window.electron.ipcRenderer.on('app:open-settings', openSettings)
+    return () => window.electron.ipcRenderer.off('app:open-settings', openSettings)
+  }, [openSettings])
 
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas-bg text-white overflow-hidden">
@@ -80,6 +87,7 @@ export default function Layout(): React.JSX.Element {
         <RightPanel isOpen={rightPanelOpen} />
       </main>
       <StatusBar />
+      <SettingsDialog isOpen={settingsOpen} onClose={closeSettings} />
     </div>
   )
 }
