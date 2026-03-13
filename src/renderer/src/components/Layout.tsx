@@ -5,6 +5,8 @@ import Canvas from './Canvas'
 import PropertiesPanel from './PropertiesPanel'
 import StatusBar from './StatusBar'
 import SettingsDialog from './settings/SettingsDialog'
+import GalleryPanel from './gallery/GalleryPanel'
+import { useGalleryStore } from '../store/gallery-store'
 
 const LEFT_PANEL_WIDTH = 250
 const RIGHT_PANEL_WIDTH = 300
@@ -68,6 +70,26 @@ function RightPanel({ isOpen }: { isOpen: boolean }): React.JSX.Element {
   )
 }
 
+function GalleryToggleButton(): React.JSX.Element {
+  const { toggleGallery, galleryOpen, items } = useGalleryStore()
+  return (
+    <button
+      onClick={toggleGallery}
+      title={galleryOpen ? 'Hide gallery' : 'Show gallery'}
+      aria-label={galleryOpen ? 'Hide gallery' : 'Show gallery'}
+      aria-pressed={galleryOpen}
+      className={`absolute bottom-8 right-4 z-10 px-3 py-1.5 text-xs font-medium
+                  border rounded transition-colors
+                  ${galleryOpen
+                    ? 'bg-node-selected text-canvas-bg border-node-selected'
+                    : 'bg-canvas-surface border-canvas-border text-gray-400 hover:text-white hover:bg-node-header'
+                  }`}
+    >
+      Gallery {items.length > 0 ? `(${items.length})` : ''}
+    </button>
+  )
+}
+
 export default function Layout(): React.JSX.Element {
   const { leftPanelOpen, rightPanelOpen, settingsOpen, openSettings, closeSettings } = useUiStore()
 
@@ -79,13 +101,15 @@ export default function Layout(): React.JSX.Element {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas-bg text-white overflow-hidden">
-      <main className="flex flex-1 overflow-hidden" data-testid="main-panels">
+      <main className="flex flex-1 overflow-hidden relative" data-testid="main-panels">
         <LeftPanel isOpen={leftPanelOpen} />
         <section className="flex-1 relative overflow-hidden" data-testid="canvas-container">
           <Canvas />
         </section>
         <RightPanel isOpen={rightPanelOpen} />
+        <GalleryToggleButton />
       </main>
+      <GalleryPanel />
       <StatusBar />
       <SettingsDialog isOpen={settingsOpen} onClose={closeSettings} />
     </div>

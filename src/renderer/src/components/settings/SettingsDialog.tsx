@@ -9,6 +9,7 @@ import React, { useEffect, useRef } from 'react'
 import { PROVIDERS } from './providers'
 import ProviderSection from './ProviderSection'
 import { useCredentials } from './useCredentials'
+import GallerySettings from '../gallery/GallerySettings'
 
 interface Props {
   isOpen: boolean
@@ -86,6 +87,7 @@ export default function SettingsDialog({ isOpen, onClose }: Props): React.JSX.El
               onTest={() => testProvider(section.id)}
             />
           ))}
+          <GallerySettings />
         </div>
       </div>
     </div>

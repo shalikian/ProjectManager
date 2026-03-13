@@ -5,6 +5,7 @@ import { registerIpcHandlers, setupRegistryPush } from './ipc-handlers'
 import { getCredentialStore, registerCredentialHandlers } from './credentials'
 import { registerEngineHandlers } from './engine'
 import { registerWorkflowHandlers } from './workflow'
+import { registerGalleryHandlers } from './gallery'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { PluginLoader } from './plugins/plugin-loader'
 
@@ -129,6 +130,7 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(menu)
 
   registerEngineHandlers(ipcMain, mainWindow.webContents, key => store.getSecret(key))
+  registerGalleryHandlers(ipcMain, mainWindow.webContents)
 
   // Set up registry push so renderer gets notified when plugins load/change
   setupRegistryPush(mainWindow.webContents)

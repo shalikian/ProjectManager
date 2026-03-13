@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import type { ElectronAPI, SaveCredentialRequest, WorkflowFile } from './types'
+import type { ElectronAPI, SaveCredentialRequest, WorkflowFile, GalleryItem, GallerySaveRequest } from './types'
 
 /** Channels that the renderer is allowed to listen on. */
 const ALLOWED_LISTENER_CHANNELS = [
@@ -9,7 +9,8 @@ const ALLOWED_LISTENER_CHANNELS = [
   IPC_CHANNELS.WORKFLOW_MENU_SAVE_AS,
   IPC_CHANNELS.WORKFLOW_MENU_OPEN,
   IPC_CHANNELS.WORKFLOW_MENU_NEW,
-  IPC_CHANNELS.WORKFLOW_MENU_OPEN_RECENT
+  IPC_CHANNELS.WORKFLOW_MENU_OPEN_RECENT,
+  IPC_CHANNELS.GALLERY_ITEM_SAVED
 ]
 
 const api: ElectronAPI = {
@@ -45,6 +46,27 @@ const api: ElectronAPI = {
       const listener = (_event: Electron.IpcRendererEvent, defs: unknown[]) => cb(defs)
       ipcRenderer.on(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
       return () => ipcRenderer.off(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
+    }
+  },
+  gallery: {
+    list: () => ipcRenderer.invoke(IPC_CHANNELS.GALLERY_LIST),
+    saveImage: (req: GallerySaveRequest) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_SAVE_IMAGE, req),
+    delete: (item: GalleryItem) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_DELETE, JSON.stringify(item)),
+    openFolder: (filePath: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_OPEN_FOLDER, filePath),
+    copyToClipboard: (dataUrl: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_COPY_CLIPBOARD, dataUrl),
+    getOutputDir: () =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_GET_OUTPUT_DIR),
+    setOutputDir: (dir?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.GALLERY_SET_OUTPUT_DIR, dir),
+    onItemSaved: (callback: (item: GalleryItem) => void) => {
+      const handler = (_event: Electron.IpcRendererEvent, item: GalleryItem): void =>
+        callback(item)
+      ipcRenderer.on(IPC_CHANNELS.GALLERY_ITEM_SAVED, handler)
+      return () => ipcRenderer.off(IPC_CHANNELS.GALLERY_ITEM_SAVED, handler)
     }
   },
   ipcRenderer: {
