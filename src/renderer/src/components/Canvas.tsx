@@ -17,6 +17,9 @@ import { buildNodeTypes } from './nodes/nodeTypeRegistry'
 import TypedEdge from './TypedEdge'
 import { validateConnection, buildTypedEdgeData } from '../utils/connection-utils'
 import type { NodeDefinition } from '../../../shared/types'
+import { useCanvasInteractions } from './canvas/useCanvasInteractions'
+import ContextMenu from './canvas/ContextMenu'
+import TabSearch from './canvas/TabSearch'
 
 const SNAP_GRID: [number, number] = [16, 16]
 
@@ -61,6 +64,8 @@ export default function Canvas(): React.JSX.Element {
   const connectionAcceptedRef = useRef(false)
   const canvasWrapperRef = useRef<HTMLDivElement>(null)
 
+  const interactions = useCanvasInteractions(canvasWrapperRef)
+
   const isValidConnection = useCallback(
     (connection: Connection) => validateConnection(connection, nodes, edges),
     [nodes, edges]
@@ -100,12 +105,20 @@ export default function Canvas(): React.JSX.Element {
     connectionAcceptedRef.current = false
   }, [])
 
-  // Build nodeTypes once from static definitions.
-  // In a future iteration this will be driven by the live NodeRegistry.
   const nodeTypes = useMemo(() => buildNodeTypes(EMPTY_DEFINITIONS), [])
 
   return (
-    <div className="w-full h-full" data-testid="canvas" ref={canvasWrapperRef}>
+    <div
+      className="w-full h-full"
+      data-testid="canvas"
+      ref={canvasWrapperRef}
+      onDragOver={interactions.handleDragOver}
+      onDrop={interactions.handleDrop}
+      onContextMenu={interactions.handleContextMenu}
+      onMouseMove={interactions.handleMouseMove}
+      onKeyDown={interactions.handleKeyDown}
+      tabIndex={0}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -118,6 +131,8 @@ export default function Canvas(): React.JSX.Element {
         nodeTypes={nodeTypes}
         edgeTypes={EDGE_TYPES}
         defaultEdgeOptions={{ type: 'typed', animated: true }}
+        onNodeClick={interactions.handleNodeClick}
+        onPaneClick={interactions.handlePaneClick}
         fitView
         colorMode="dark"
         snapToGrid
@@ -136,6 +151,23 @@ export default function Canvas(): React.JSX.Element {
           style={{ background: '#1e1e2e' }}
         />
       </ReactFlow>
+
+      {interactions.contextMenu && (
+        <ContextMenu
+          position={interactions.contextMenu}
+          onAddNode={interactions.handleAddNodeFromMenu}
+          onClose={interactions.closeContextMenu}
+        />
+      )}
+
+      {interactions.tabSearch.open && (
+        <TabSearch
+          canvasX={interactions.tabSearch.canvasX}
+          canvasY={interactions.tabSearch.canvasY}
+          onAddNode={interactions.handleAddNodeFromMenu}
+          onClose={interactions.closeTabSearch}
+        />
+      )}
     </div>
   )
 }

@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react'
 import type { NodeType, NodeExecutionState } from '../../../shared/types'
 import { createInitialNodes, createInitialEdges } from './flow-initial-state'
-import { buildNewNode } from './flow-node-factory'
+import { buildNewNode, buildNewNodeAtPosition } from './flow-node-factory'
 
 /** Per-node runtime state: execution status and parameter values. */
 export interface NodeRuntimeState {
@@ -25,10 +25,14 @@ interface FlowState {
   edges: Edge[]
   /** Runtime state keyed by node instance id */
   nodeRuntimeStates: Record<string, NodeRuntimeState>
+  /** Currently selected node id, or null */
+  selectedNodeId: string | null
   onNodesChange: (changes: NodeChange[]) => void
   onEdgesChange: (changes: EdgeChange[]) => void
   setEdges: (updater: (edges: Edge[]) => Edge[]) => void
   addNode: (type: NodeType) => void
+  addNodeAtPosition: (type: NodeType, x: number, y: number) => void
+  setSelectedNode: (nodeId: string | null) => void
   setNodeExecutionState: (nodeId: string, state: NodeExecutionState) => void
   setNodeParamValue: (nodeId: string, paramId: string, value: unknown) => void
   setNodeImagePreview: (nodeId: string, outputId: string, dataUrl: string | null) => void
@@ -43,6 +47,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   nodes: createInitialNodes(),
   edges: createInitialEdges(),
   nodeRuntimeStates: {},
+  selectedNodeId: null,
 
   onNodesChange: (changes: NodeChange[]) => {
     set({ nodes: applyNodeChanges(changes, get().nodes) })
@@ -59,7 +64,16 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   addNode: (type: NodeType) => {
     const nodeCount = get().nodes.length
     const newNode = buildNewNode(type, nodeCount)
-    set({ nodes: [...get().nodes, newNode] })
+    set({ nodes: [...get().nodes, newNode], selectedNodeId: newNode.id })
+  },
+
+  addNodeAtPosition: (type: NodeType, x: number, y: number) => {
+    const newNode = buildNewNodeAtPosition(type, x, y)
+    set({ nodes: [...get().nodes, newNode], selectedNodeId: newNode.id })
+  },
+
+  setSelectedNode: (nodeId: string | null) => {
+    set({ selectedNodeId: nodeId })
   },
 
   getOrCreateNodeRuntime: (nodeId: string): NodeRuntimeState => {

@@ -25,3 +25,17 @@ export function buildNewNode(type: NodeType, existingCount: number): Node {
     }
   }
 }
+
+/**
+ * Builds a new React Flow node at the given canvas position.
+ */
+export function buildNewNodeAtPosition(type: NodeType, x: number, y: number): Node {
+  return {
+    id: `${type}-${Date.now()}`,
+    type,
+    position: { x, y },
+    data: {
+      label: NODE_LABELS[type] ?? type
+    }
+  }
+}

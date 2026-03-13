@@ -1,70 +1,94 @@
-import React from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useFlowStore } from '../store/flow-store'
 import type { NodeType } from '../../../shared/types'
+import {
+  BUILT_IN_PALETTE,
+  filterEntries,
+  groupByCategory,
+  type PaletteEntry
+} from './palette/palette-registry'
+import PaletteCategory from './palette/PaletteCategory'
 
-interface PaletteItem {
-  type: NodeType
-  label: string
-  icon: string
-  description: string
-}
-
-const PALETTE_ITEMS: PaletteItem[] = [
-  {
-    type: 'imageSource',
-    label: 'Image Source',
-    icon: '▲',
-    description: 'Load an image from disk'
-  },
-  {
-    type: 'filter',
-    label: 'Filter',
-    icon: '◈',
-    description: 'Apply image filters'
-  },
-  {
-    type: 'output',
-    label: 'Output',
-    icon: '■',
-    description: 'Export the result'
-  }
-]
-
-function PaletteItem({ item }: { item: PaletteItem }): React.JSX.Element {
-  const { addNode } = useFlowStore()
-
+function SearchInput({
+  value,
+  onChange
+}: {
+  value: string
+  onChange: (v: string) => void
+}): React.JSX.Element {
   return (
-    <button
-      className="w-full text-left px-3 py-2 rounded-md bg-node-bg border border-node-border
-                 hover:border-node-selected hover:bg-node-header transition-colors group"
-      onClick={() => addNode(item.type)}
-      title={item.description}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-blue-400 text-sm">{item.icon}</span>
-        <div>
-          <p className="text-xs font-medium text-white">{item.label}</p>
-          <p className="text-[10px] text-gray-500 group-hover:text-gray-400">
-            {item.description}
-          </p>
-        </div>
-      </div>
-    </button>
+    <div className="relative px-2 pb-2">
+      <input
+        type="search"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Search nodes..."
+        aria-label="Search nodes"
+        data-testid="palette-search"
+        className="w-full bg-canvas-bg border border-node-border rounded px-2 py-1
+                   text-xs text-white placeholder-gray-600
+                   focus:outline-none focus:border-node-selected"
+      />
+    </div>
   )
 }
 
+function EmptyState(): React.JSX.Element {
+  return (
+    <p
+      className="text-xs text-gray-500 text-center py-4 px-2"
+      data-testid="palette-empty"
+    >
+      No nodes match your search.
+    </p>
+  )
+}
+
+/**
+ * Left sidebar node palette.
+ * Displays built-in nodes grouped by category with search filtering.
+ * Items can be clicked to add at default position, or dragged onto canvas.
+ */
 export default function NodePalette(): React.JSX.Element {
+  const { addNode } = useFlowStore()
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(
+    () => filterEntries(BUILT_IN_PALETTE, query),
+    [query]
+  )
+
+  const grouped = useMemo(() => groupByCategory(filtered), [filtered])
+
+  const handleAdd = useCallback(
+    (entry: PaletteEntry) => {
+      addNode(entry.type as NodeType)
+    },
+    [addNode]
+  )
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="px-3 py-2 border-b border-canvas-border">
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <div className="px-3 py-2 border-b border-canvas-border shrink-0">
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Node Palette
         </h2>
+        <SearchInput value={query} onChange={setQuery} />
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        {PALETTE_ITEMS.map(item => (
-          <PaletteItem key={item.type} item={item} />
-        ))}
+
+      <div className="flex-1 overflow-y-auto p-2">
+        {grouped.size === 0 ? (
+          <EmptyState />
+        ) : (
+          Array.from(grouped.entries()).map(([category, entries]) => (
+            <PaletteCategory
+              key={category}
+              category={category}
+              entries={entries}
+              onAdd={handleAdd}
+            />
+          ))
+        )}
       </div>
     </div>
   )
