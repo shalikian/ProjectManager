@@ -1,0 +1,6 @@
+{
+  "name": "utility",
+  "version": "1.0.0",
+  "description": "Built-in utility nodes: Text, Number, Toggle, Image Preview, Prompt Concatenator",
+  "nodepack": ["index.js"]
+}
