@@ -2,6 +2,16 @@
  * Shared types used across main, preload, and renderer processes.
  */
 
+/** Minimal execution context passed to node execute functions. */
+export interface ExecutionContext {
+  /** Report incremental progress for this node (0–100). */
+  reportProgress: (percent: number, message?: string) => void
+  /** Retrieve a named secret (API key, credential, etc.). */
+  getSecret: (key: string) => string | undefined
+  /** AbortSignal that fires when the run is cancelled. */
+  abortSignal: AbortSignal
+}
+
 export interface AppInfo {
   version: string
   platform: NodeJS.Platform
@@ -92,5 +102,8 @@ export interface NodeDefinition {
   parameters?: ParameterDefinition[]
   /** Optional pixel width override. Defaults to 280. */
   width?: number
-  execute: (inputs: Record<string, unknown>) => Promise<Record<string, unknown>> | Record<string, unknown>
+  execute: (
+    inputs: Record<string, unknown>,
+    context?: ExecutionContext
+  ) => Promise<Record<string, unknown>> | Record<string, unknown>
 }
