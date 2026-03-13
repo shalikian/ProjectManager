@@ -1,6 +1,11 @@
 import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+// Inline @electron-toolkit/utils to avoid top-level app access crash
+const is = {
+  get dev(): boolean {
+    return !app.isPackaged
+  }
+}
 import { registerIpcHandlers, setupRegistryPush } from './ipc-handlers'
 import { getCredentialStore, registerCredentialHandlers } from './credentials'
 import { registerEngineHandlers } from './engine'
@@ -113,11 +118,7 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.node-image-gen')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
+  app.setAppUserModelId('com.node-image-gen')
 
   registerIpcHandlers(ipcMain)
   registerWorkflowHandlers(ipcMain)
@@ -135,8 +136,10 @@ app.whenReady().then(() => {
   // Set up registry push so renderer gets notified when plugins load/change
   setupRegistryPush(mainWindow.webContents)
 
-  // Load plugins from the plugins/ directory next to the app root
-  const pluginsDir = join(app.getAppPath(), '..', 'plugins')
+  // Load plugins from the plugins/ directory in the project root
+  const pluginsDir = is.dev
+    ? join(app.getAppPath(), 'plugins')
+    : join(app.getAppPath(), '..', 'plugins')
   const loader = new PluginLoader(pluginsDir)
   loader.loadAll()
 

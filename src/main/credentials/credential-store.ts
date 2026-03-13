@@ -165,6 +165,11 @@ export function resetCredentialStore(): void {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getDefaultCredentialPath(): string {
-  const userData = app.getPath('userData')
-  return join(userData, 'credentials.json')
+  try {
+    const userData = app.getPath('userData')
+    return join(userData, 'credentials.json')
+  } catch {
+    // Fallback for testing or early access
+    return join(process.cwd(), 'credentials.json')
+  }
 }
