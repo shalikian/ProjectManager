@@ -20,6 +20,7 @@ import type { NodeDefinition } from '../../../shared/types'
 import { useCanvasInteractions } from './canvas/useCanvasInteractions'
 import ContextMenu from './canvas/ContextMenu'
 import TabSearch from './canvas/TabSearch'
+import WorkflowController from './workflow/WorkflowController'
 
 const SNAP_GRID: [number, number] = [16, 16]
 
@@ -150,6 +151,7 @@ export default function Canvas(): React.JSX.Element {
           maskColor="rgba(26, 26, 46, 0.8)"
           style={{ background: '#1e1e2e' }}
         />
+        <WorkflowController />
       </ReactFlow>
 
       {interactions.contextMenu && (

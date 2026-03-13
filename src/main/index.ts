@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
 import { getCredentialStore, registerCredentialHandlers } from './credentials'
 import { registerEngineHandlers } from './engine'
+import { registerWorkflowHandlers } from './workflow'
+import { IPC_CHANNELS } from '../shared/ipc-channels'
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -45,6 +47,33 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
     {
       label: 'File',
       submenu: [
+        {
+          label: 'New Workflow',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.WORKFLOW_MENU_NEW)
+        },
+        { type: 'separator' },
+        {
+          label: 'Open Workflow...',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.WORKFLOW_MENU_OPEN)
+        },
+        {
+          label: 'Open Recent',
+          submenu: [{ label: 'No recent files', enabled: false }]
+        },
+        { type: 'separator' },
+        {
+          label: 'Save',
+          accelerator: 'CmdOrCtrl+S',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.WORKFLOW_MENU_SAVE)
+        },
+        {
+          label: 'Save As...',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.WORKFLOW_MENU_SAVE_AS)
+        },
+        { type: 'separator' },
         {
           label: 'Settings',
           accelerator: 'CmdOrCtrl+,',
@@ -89,6 +118,7 @@ app.whenReady().then(() => {
   })
 
   registerIpcHandlers(ipcMain)
+  registerWorkflowHandlers(ipcMain)
 
   const store = getCredentialStore()
   registerCredentialHandlers(ipcMain, store)

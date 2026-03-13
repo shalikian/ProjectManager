@@ -3,6 +3,14 @@
  * This file is also referenced by the renderer's global type augmentation.
  */
 
+import type {
+  WorkflowFile,
+  WorkflowIpcResult,
+  RecentFileEntry
+} from '../shared/workflow-types'
+
+export type { WorkflowFile, WorkflowIpcResult, RecentFileEntry }
+
 export interface SaveCredentialRequest {
   key: string
   value: string
@@ -43,9 +51,24 @@ export interface IpcListenerBridge {
   off: (channel: string, callback: (...args: unknown[]) => void) => void
 }
 
+/** Workflow save/load API exposed to the renderer. */
+export interface WorkflowAPI {
+  /** Save the current workflow (uses existing path if known, else prompts). */
+  save: (workflow: WorkflowFile) => Promise<WorkflowIpcResult>
+  /** Always shows a save-as dialog. */
+  saveAs: (workflow: WorkflowFile) => Promise<WorkflowIpcResult>
+  /** Open a workflow via dialog (or by path if provided). */
+  open: (filePath?: string) => Promise<WorkflowIpcResult>
+  /** Get the list of recently opened workflows. */
+  getRecent: () => Promise<RecentFileEntry[]>
+  /** Update the window title. */
+  setTitle: (title: string) => Promise<void>
+}
+
 export interface ElectronAPI {
   getVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
   credentials: CredentialsAPI
+  workflow: WorkflowAPI
   ipcRenderer: IpcListenerBridge
 }
