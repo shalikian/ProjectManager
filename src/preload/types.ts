@@ -65,10 +65,23 @@ export interface WorkflowAPI {
   setTitle: (title: string) => Promise<void>
 }
 
+/** Node registry API exposed to the renderer. */
+export interface NodesAPI {
+  /** Fetch all registered NodeDefinition objects from the main process registry. */
+  listAll: () => Promise<unknown[]>
+  /**
+   * Subscribe to registry-changed events.
+   * The callback is invoked with the full updated list of definitions.
+   * Returns a cleanup function that removes the listener.
+   */
+  onRegistryChanged: (cb: (definitions: unknown[]) => void) => () => void
+}
+
 export interface ElectronAPI {
   getVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
   credentials: CredentialsAPI
   workflow: WorkflowAPI
+  nodes: NodesAPI
   ipcRenderer: IpcListenerBridge
 }

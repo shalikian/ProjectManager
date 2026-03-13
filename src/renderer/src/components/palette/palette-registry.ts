@@ -25,6 +25,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Filter: '#81C784',
   Output: '#FFB74D',
   Custom: '#CE93D8',
+  Utility: '#4DB6AC',
   Default: '#9E9E9E'
 }
 
