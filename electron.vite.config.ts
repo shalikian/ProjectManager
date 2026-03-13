@@ -28,11 +28,6 @@ export default defineConfig({
         '@shared': resolve('src/shared')
       }
     },
-    plugins: [react()],
-    css: {
-      postcss: {
-        plugins: []
-      }
-    }
+    plugins: [react()]
   }
 })
