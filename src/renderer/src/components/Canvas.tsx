@@ -20,6 +20,9 @@ import type { NodeDefinition } from '../../../shared/types'
 
 const SNAP_GRID: [number, number] = [16, 16]
 
+/** Duration in ms for the connection-rejected animation. */
+const REJECTION_ANIMATION_MS = 350
+
 /** Currently registered plugin definitions passed from outside, or empty array. */
 const EMPTY_DEFINITIONS: NodeDefinition[] = []
 
@@ -41,9 +44,22 @@ function applyHandleHighlight(active: boolean): void {
   })
 }
 
+/**
+ * Applies the connection-rejected CSS class to the given element for a brief
+ * duration, producing the shake animation defined in globals.css.
+ */
+export function triggerRejectionAnimation(el: HTMLElement, durationMs: number): void {
+  el.classList.add('connection-rejected')
+  setTimeout(() => {
+    el.classList.remove('connection-rejected')
+  }, durationMs)
+}
+
 export default function Canvas(): React.JSX.Element {
   const { nodes, edges, onNodesChange, onEdgesChange, setEdges } = useFlowStore()
   const isDraggingRef = useRef(false)
+  const connectionAcceptedRef = useRef(false)
+  const canvasWrapperRef = useRef<HTMLDivElement>(null)
 
   const isValidConnection = useCallback(
     (connection: Connection) => validateConnection(connection, nodes, edges),
@@ -52,6 +68,7 @@ export default function Canvas(): React.JSX.Element {
 
   const onConnect = useCallback(
     (connection: Connection) => {
+      connectionAcceptedRef.current = true
       const edgeData = buildTypedEdgeData(connection, nodes)
       setEdges(eds =>
         addEdge(
@@ -70,12 +87,17 @@ export default function Canvas(): React.JSX.Element {
 
   const onConnectStart: OnConnectStart = useCallback(() => {
     isDraggingRef.current = true
+    connectionAcceptedRef.current = false
     applyHandleHighlight(true)
   }, [])
 
   const onConnectEnd: OnConnectEnd = useCallback(() => {
     isDraggingRef.current = false
     applyHandleHighlight(false)
+    if (!connectionAcceptedRef.current && canvasWrapperRef.current) {
+      triggerRejectionAnimation(canvasWrapperRef.current, REJECTION_ANIMATION_MS)
+    }
+    connectionAcceptedRef.current = false
   }, [])
 
   // Build nodeTypes once from static definitions.
@@ -83,7 +105,7 @@ export default function Canvas(): React.JSX.Element {
   const nodeTypes = useMemo(() => buildNodeTypes(EMPTY_DEFINITIONS), [])
 
   return (
-    <div className="w-full h-full" data-testid="canvas">
+    <div className="w-full h-full" data-testid="canvas" ref={canvasWrapperRef}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
