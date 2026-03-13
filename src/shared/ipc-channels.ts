@@ -14,7 +14,14 @@ export const IPC_CHANNELS = {
   ENGINE_RUN_NODE: 'engine:run-node',
   ENGINE_CANCEL: 'engine:cancel',
   ENGINE_PROGRESS: 'engine:progress',
-  ENGINE_RESULT: 'engine:result'
+  ENGINE_RESULT: 'engine:result',
+
+  // Credential management channels
+  CREDENTIALS_SAVE: 'credentials:save',
+  CREDENTIALS_LIST: 'credentials:list',
+  CREDENTIALS_DELETE: 'credentials:delete',
+  CREDENTIALS_TEST: 'credentials:test',
+  CREDENTIALS_GET_MASKED: 'credentials:get-masked'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

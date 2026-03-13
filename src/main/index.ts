@@ -1,7 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
+import { getCredentialStore, registerCredentialHandlers } from './credentials'
+import { registerEngineHandlers } from './engine'
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -10,7 +12,7 @@ function createWindow(): BrowserWindow {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     backgroundColor: '#1a1a2e',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -38,6 +40,47 @@ function createWindow(): BrowserWindow {
   return mainWindow
 }
 
+function buildAppMenu(mainWindow: BrowserWindow): Menu {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Settings',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => {
+            mainWindow.webContents.send('app:open-settings')
+          }
+        },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    }
+  ]
+  return Menu.buildFromTemplate(template)
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.node-image-gen')
 
@@ -47,7 +90,14 @@ app.whenReady().then(() => {
 
   registerIpcHandlers(ipcMain)
 
-  createWindow()
+  const store = getCredentialStore()
+  registerCredentialHandlers(ipcMain, store)
+
+  const mainWindow = createWindow()
+  const menu = buildAppMenu(mainWindow)
+  Menu.setApplicationMenu(menu)
+
+  registerEngineHandlers(ipcMain, mainWindow.webContents, key => store.getSecret(key))
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
