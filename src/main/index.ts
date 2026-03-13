@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc-handlers'
 import { getCredentialStore, registerCredentialHandlers } from './credentials'
+import { registerEngineHandlers } from './engine'
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -95,6 +96,8 @@ app.whenReady().then(() => {
   const mainWindow = createWindow()
   const menu = buildAppMenu(mainWindow)
   Menu.setApplicationMenu(menu)
+
+  registerEngineHandlers(ipcMain, mainWindow.webContents, key => store.getSecret(key))
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

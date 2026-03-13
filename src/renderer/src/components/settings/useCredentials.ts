@@ -13,6 +13,7 @@ const electron = window.electron
 export function useCredentials(providerIds: string[]) {
   const [fieldStates, setFieldStates] = useState<FieldStates>({})
   const [savingKey, setSavingKey] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [testStatuses, setTestStatuses] = useState<Record<string, TestStatus>>(
     () => Object.fromEntries(providerIds.map(id => [id, { state: 'idle' as const }]))
   )
@@ -51,6 +52,7 @@ export function useCredentials(providerIds: string[]) {
     const state = fieldStates[key]
     if (!state?.value) return
     setSavingKey(key)
+    setSaveError(null)
     try {
       const result = await electron.credentials.save({ key, value: state.value })
       if (result.ok) {
@@ -59,7 +61,9 @@ export function useCredentials(providerIds: string[]) {
           [key]: { ...(prev[key] ?? { revealed: false }), value: '', saved: true }
         }))
       } else {
-        console.error('Failed to save credential:', result.error)
+        const errorMsg = result.error ?? 'Failed to save credential'
+        console.error('Failed to save credential:', errorMsg)
+        setSaveError(errorMsg)
       }
     } finally {
       setSavingKey(null)
@@ -89,6 +93,7 @@ export function useCredentials(providerIds: string[]) {
   return {
     fieldStates,
     savingKey,
+    saveError,
     testStatuses,
     setFieldValue,
     revealField,
