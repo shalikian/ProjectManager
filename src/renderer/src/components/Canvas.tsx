@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import {
   ReactFlow,
   Background,
@@ -10,17 +10,13 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useFlowStore } from '../store/flow-store'
-import ImageSourceNode from './nodes/ImageSourceNode'
-import FilterNode from './nodes/FilterNode'
-import OutputNode from './nodes/OutputNode'
-
-const nodeTypes = {
-  imageSource: ImageSourceNode,
-  filter: FilterNode,
-  output: OutputNode
-}
+import { buildNodeTypes } from './nodes/nodeTypeRegistry'
+import type { NodeDefinition } from '../../../shared/types'
 
 const SNAP_GRID: [number, number] = [16, 16]
+
+/** Currently registered plugin definitions passed from outside, or empty array. */
+const EMPTY_DEFINITIONS: NodeDefinition[] = []
 
 export default function Canvas(): React.JSX.Element {
   const { nodes, edges, onNodesChange, onEdgesChange, setEdges } = useFlowStore()
@@ -31,6 +27,10 @@ export default function Canvas(): React.JSX.Element {
     },
     [setEdges]
   )
+
+  // Build nodeTypes once from static definitions.
+  // In a future iteration this will be driven by the live NodeRegistry.
+  const nodeTypes = useMemo(() => buildNodeTypes(EMPTY_DEFINITIONS), [])
 
   return (
     <div className="w-full h-full" data-testid="canvas">
