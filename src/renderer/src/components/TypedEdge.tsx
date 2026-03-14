@@ -1,18 +1,27 @@
 /**
- * TypedEdge — A custom React Flow edge that renders with the color of the
- * source port type. Handles are color-coded per the PORT_TYPE_REGISTRY.
+ * TypedEdge — A custom React Flow edge that renders as a thin gray bezier
+ * curve. Selected edges are slightly thicker with a subtle drop-shadow glow.
+ * The midpoint indicator and dashed animation have been removed for a clean,
+ * unobtrusive look matching the weavy.ai reference design.
  */
 import React from 'react'
-import { BaseEdge, EdgeProps, getBezierPath, EdgeLabelRenderer } from '@xyflow/react'
+import { BaseEdge, EdgeProps, getBezierPath } from '@xyflow/react'
 
-/** Extra data we store on edges to carry the port color. */
+/** Extra data we store on edges (currently unused for color, reserved for future). */
 export interface TypedEdgeData {
-  /** Hex color derived from the source port's PortType */
+  /** Hex color derived from the source port's PortType (reserved, not applied to stroke) */
   color?: string
   [key: string]: unknown
 }
 
-const DEFAULT_EDGE_COLOR = '#9E9E9E'
+/** Default unselected stroke color — neutral gray. */
+const DEFAULT_EDGE_COLOR = '#666666'
+
+/** Default stroke width for unselected edges. */
+const DEFAULT_STROKE_WIDTH = 1.5
+
+/** Stroke width when the edge is selected. */
+const SELECTED_STROKE_WIDTH = 2
 
 function buildEdgePath(props: EdgeProps): [string, number, number] {
   const {
@@ -36,51 +45,27 @@ function buildEdgePath(props: EdgeProps): [string, number, number] {
   return [path, labelX, labelY]
 }
 
-/** Renders a bezier edge colored with the source port's type color. */
+/** Renders a thin gray bezier edge. Selected edges show a 2px stroke with glow. */
 export default function TypedEdge(props: EdgeProps): React.JSX.Element {
-  const { id, data, selected, markerEnd } = props
-  const edgeData = data as TypedEdgeData | undefined
-  const color = edgeData?.color ?? DEFAULT_EDGE_COLOR
+  const { id, selected, markerEnd } = props
 
-  const [path, labelX, labelY] = buildEdgePath(props)
+  const [path] = buildEdgePath(props)
 
   const strokeStyle = {
-    stroke: color,
-    strokeWidth: selected ? 3 : 2,
-    filter: selected ? `drop-shadow(0 0 4px ${color})` : undefined
+    stroke: DEFAULT_EDGE_COLOR,
+    strokeWidth: selected ? SELECTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+    filter: selected
+      ? `drop-shadow(0 0 3px ${DEFAULT_EDGE_COLOR})`
+      : undefined
   }
 
   return (
-    <>
-      <BaseEdge
-        id={id}
-        path={path}
-        markerEnd={markerEnd}
-        style={strokeStyle}
-        interactionWidth={16}
-      />
-      {selected && (
-        <EdgeLabelRenderer>
-          <div
-            style={{
-              position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              pointerEvents: 'all'
-            }}
-            className="nodrag nopan"
-          >
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: color,
-                border: '2px solid rgba(0,0,0,0.5)'
-              }}
-            />
-          </div>
-        </EdgeLabelRenderer>
-      )}
-    </>
+    <BaseEdge
+      id={id}
+      path={path}
+      markerEnd={markerEnd}
+      style={strokeStyle}
+      interactionWidth={16}
+    />
   )
 }

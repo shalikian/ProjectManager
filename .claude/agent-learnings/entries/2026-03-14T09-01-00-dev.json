@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-03-14T09:01:00Z",
+  "agent": "dev",
+  "issue": "#51",
+  "category": "convention",
+  "summary": "TypedEdge redesign: thin gray bezier curves, no animation, no midpoint indicator",
+  "detail": "Issue #51 redesigned edges to match weavy.ai aesthetics. Key changes: (1) DEFAULT_EDGE_COLOR changed from #9E9E9E to #666666, (2) default stroke width changed from 2px to 1.5px, (3) selected stroke width lowered from 3px to 2px with lighter glow (drop-shadow 0 0 3px), (4) midpoint indicator circle in EdgeLabelRenderer completely removed, (5) animated flag set to false in both onConnect handler and defaultEdgeOptions in Canvas.tsx, (6) connectionLineStyle added to ReactFlow to make drag preview match final edge style. TypedEdgeData.color field kept in interface for future use but no longer applied to stroke — all edges use the same neutral gray.",
+  "tags": ["react-flow", "typed-edge", "canvas", "edge-style", "bezier", "animation", "ui"]
+}

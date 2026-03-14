@@ -24,6 +24,12 @@ import WorkflowController from './workflow/WorkflowController'
 
 const SNAP_GRID: [number, number] = [16, 16]
 
+/** Style for the in-progress connection line while dragging. Matches the final edge style. */
+const CONNECTION_LINE_STYLE: React.CSSProperties = {
+  stroke: '#666666',
+  strokeWidth: 1.5
+}
+
 /** Duration in ms for the connection-rejected animation. */
 const REJECTION_ANIMATION_MS = 350
 
@@ -81,7 +87,7 @@ export default function Canvas(): React.JSX.Element {
           {
             ...connection,
             type: 'typed',
-            animated: true,
+            animated: false,
             data: edgeData
           },
           eds
@@ -131,7 +137,8 @@ export default function Canvas(): React.JSX.Element {
         isValidConnection={isValidConnection}
         nodeTypes={nodeTypes}
         edgeTypes={EDGE_TYPES}
-        defaultEdgeOptions={{ type: 'typed', animated: true }}
+        defaultEdgeOptions={{ type: 'typed', animated: false }}
+        connectionLineStyle={CONNECTION_LINE_STYLE}
         onNodeClick={interactions.handleNodeClick}
         onPaneClick={interactions.handlePaneClick}
         fitView
