@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { useUiStore } from '../store/ui-store'
+import { useFlowStore } from '../store/flow-store'
 import NodePalette from './NodePalette'
 import Canvas from './Canvas'
 import PropertiesPanel from './PropertiesPanel'
@@ -7,6 +8,7 @@ import StatusBar from './StatusBar'
 import SettingsDialog from './settings/SettingsDialog'
 import GalleryPanel from './gallery/GalleryPanel'
 import { useGalleryStore } from '../store/gallery-store'
+import type { NodeType } from '../../../shared/types'
 
 const LEFT_PANEL_WIDTH = 250
 const RIGHT_PANEL_WIDTH = 300
@@ -115,6 +117,28 @@ export default function Layout(): React.JSX.Element {
     ipc.on('app:toggle-minimap', toggleMiniMap)
     return () => ipc.off('app:toggle-minimap', toggleMiniMap)
   }, [toggleMiniMap])
+
+  // Listen for the main-process "import image" IPC event (File → Import Image menu)
+  const handleImportImage = useCallback(async () => {
+    const imageApi = window.electron?.image
+    if (!imageApi) return
+    const result = await imageApi.openDialog()
+    if (!result) return
+    const { addNodeAtPosition, setNodeImagePreview } = useFlowStore.getState()
+    addNodeAtPosition('imageSource' as NodeType, 300, 200)
+    const state = useFlowStore.getState()
+    const newNodeId = state.selectedNodeId
+    if (newNodeId) {
+      setNodeImagePreview(newNodeId, 'image', result.dataUrl)
+    }
+  }, [])
+
+  useEffect(() => {
+    const ipc = window.electron?.ipcRenderer
+    if (!ipc) return
+    ipc.on('app:import-image', handleImportImage)
+    return () => ipc.off('app:import-image', handleImportImage)
+  }, [handleImportImage])
 
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas-bg text-white overflow-hidden">

@@ -36,6 +36,11 @@ export const IPC_CHANNELS = {
   WORKFLOW_MENU_NEW: 'workflow:menu-new',
   WORKFLOW_MENU_OPEN_RECENT: 'workflow:menu-open-recent',
 
+  // Image import channels
+  IMAGE_OPEN_DIALOG: 'image:open-dialog',
+  IMAGE_READ_CLIPBOARD: 'image:read-clipboard',
+  APP_IMPORT_IMAGE: 'app:import-image',
+
   // UI toggle channels
   APP_TOGGLE_MINIMAP: 'app:toggle-minimap',
 

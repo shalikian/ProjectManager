@@ -116,10 +116,11 @@ export default function Canvas(): React.JSX.Element {
 
   return (
     <div
-      className="w-full h-full"
+      className="w-full h-full relative"
       data-testid="canvas"
       ref={canvasWrapperRef}
       onDragOver={interactions.handleDragOver}
+      onDragLeave={interactions.handleDragLeave}
       onDrop={interactions.handleDrop}
       onContextMenu={interactions.handleContextMenu}
       onMouseMove={interactions.handleMouseMove}
@@ -181,6 +182,13 @@ export default function Canvas(): React.JSX.Element {
           onAddNode={interactions.handleAddNodeFromMenu}
           onClose={interactions.closeTabSearch}
         />
+      )}
+
+      {interactions.isDraggingFile && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none
+                        bg-blue-500/10 border-2 border-dashed border-blue-400/50 rounded-lg">
+          <span className="text-blue-300 text-lg font-medium">Drop image to import</span>
+        </div>
       )}
     </div>
   )

@@ -105,12 +105,27 @@ export interface GalleryAPI {
   onItemSaved: (callback: (item: GalleryItem) => void) => () => void
 }
 
+/** Image import result returned from main process. */
+export interface ImageLoadResult {
+  dataUrl: string
+  fileName: string
+}
+
+/** Image import API exposed to the renderer. */
+export interface ImageAPI {
+  /** Open a file dialog filtered to PNG/JPG/WebP and return the image as a data URL. */
+  openDialog: () => Promise<ImageLoadResult | null>
+  /** Read image data from the system clipboard. */
+  readClipboard: () => Promise<ImageLoadResult | null>
+}
+
 export interface ElectronAPI {
   getVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
   credentials: CredentialsAPI
   workflow: WorkflowAPI
   nodes: NodesAPI
+  image: ImageAPI
   gallery: GalleryAPI
   ipcRenderer: IpcListenerBridge
 }

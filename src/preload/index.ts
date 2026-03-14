@@ -6,6 +6,7 @@ import type { ElectronAPI, SaveCredentialRequest, WorkflowFile, GalleryItem, Gal
 const ALLOWED_LISTENER_CHANNELS = [
   'app:open-settings',
   'app:toggle-minimap',
+  IPC_CHANNELS.APP_IMPORT_IMAGE,
   IPC_CHANNELS.WORKFLOW_MENU_SAVE,
   IPC_CHANNELS.WORKFLOW_MENU_SAVE_AS,
   IPC_CHANNELS.WORKFLOW_MENU_OPEN,
@@ -48,6 +49,12 @@ const api: ElectronAPI = {
       ipcRenderer.on(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
       return () => ipcRenderer.off(IPC_CHANNELS.NODES_REGISTRY_CHANGED, listener)
     }
+  },
+  image: {
+    openDialog: () =>
+      ipcRenderer.invoke(IPC_CHANNELS.IMAGE_OPEN_DIALOG),
+    readClipboard: () =>
+      ipcRenderer.invoke(IPC_CHANNELS.IMAGE_READ_CLIPBOARD)
   },
   gallery: {
     list: () => ipcRenderer.invoke(IPC_CHANNELS.GALLERY_LIST),

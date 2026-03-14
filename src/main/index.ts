@@ -11,6 +11,7 @@ import { getCredentialStore, registerCredentialHandlers } from './credentials'
 import { registerEngineHandlers } from './engine'
 import { registerWorkflowHandlers } from './workflow'
 import { registerGalleryHandlers } from './gallery'
+import { registerImageHandlers } from './image/image-ipc-handlers'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { PluginLoader } from './plugins/plugin-loader'
 
@@ -82,6 +83,12 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
+          label: 'Import Image...',
+          accelerator: 'CmdOrCtrl+I',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.APP_IMPORT_IMAGE)
+        },
+        { type: 'separator' },
+        {
           label: 'Settings',
           accelerator: 'CmdOrCtrl+,',
           click: () => {
@@ -128,6 +135,7 @@ app.whenReady().then(() => {
 
   registerIpcHandlers(ipcMain)
   registerWorkflowHandlers(ipcMain)
+  registerImageHandlers(ipcMain)
 
   const store = getCredentialStore()
   registerCredentialHandlers(ipcMain, store)
