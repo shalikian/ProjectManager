@@ -10,6 +10,7 @@ import {
 import type { NodeType, NodeExecutionState } from '../../../shared/types'
 import { createInitialNodes, createInitialEdges } from './flow-initial-state'
 import { buildNewNode, buildNewNodeAtPosition } from './flow-node-factory'
+import { useDefinitionStore } from './definition-store'
 
 /** Per-node runtime state: execution status and parameter values. */
 export interface NodeRuntimeState {
@@ -62,13 +63,15 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   },
 
   addNode: (type: NodeType) => {
+    const definition = useDefinitionStore.getState().getDefinition(type)
     const nodeCount = get().nodes.length
-    const newNode = buildNewNode(type, nodeCount)
+    const newNode = buildNewNode(type, nodeCount, definition)
     set({ nodes: [...get().nodes, newNode], selectedNodeId: newNode.id })
   },
 
   addNodeAtPosition: (type: NodeType, x: number, y: number) => {
-    const newNode = buildNewNodeAtPosition(type, x, y)
+    const definition = useDefinitionStore.getState().getDefinition(type)
+    const newNode = buildNewNodeAtPosition(type, x, y, definition)
     set({ nodes: [...get().nodes, newNode], selectedNodeId: newNode.id })
   },
 

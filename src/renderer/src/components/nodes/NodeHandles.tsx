@@ -35,10 +35,10 @@ function PortHandle({
       style={{
         backgroundColor: portType.color,
         top: `${topPercent}%`,
-        border: '1px solid rgba(0,0,0,0.3)',
+        border: '2px solid rgba(0,0,0,0.4)',
         borderRadius: '50%',
-        width: 7,
-        height: 7
+        width: 14,
+        height: 14
       }}
       title={`${port.label} (${portType.label})`}
     />

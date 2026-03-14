@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useFlowStore } from '../store/flow-store'
+import { useDefinitionStore } from '../store/definition-store'
 import type { NodeType, NodeDefinition } from '../../../shared/types'
 import {
   BUILT_IN_PALETTE,
@@ -64,36 +65,31 @@ function definitionToEntry(def: NodeDefinition): PaletteEntry {
  */
 export default function NodePalette(): React.JSX.Element {
   const { addNode } = useFlowStore()
+  const { definitions, setPluginDefinitions } = useDefinitionStore()
   const [query, setQuery] = useState('')
-  const [pluginEntries, setPluginEntries] = useState<PaletteEntry[]>([])
 
+  // Fetch plugin definitions from main process and feed into the central store
   useEffect(() => {
     const nodesApi = window.electron?.nodes
     if (!nodesApi) return
 
-    // Initial fetch
     nodesApi.listAll().then((defs: unknown[]) => {
-      const entries = (defs as NodeDefinition[]).map(definitionToEntry)
-      setPluginEntries(entries)
+      setPluginDefinitions(defs as NodeDefinition[])
     }).catch((err: unknown) => {
       console.error('[NodePalette] Failed to fetch node definitions:', err)
     })
 
-    // Subscribe to live updates (hot-reload / new plugins)
     const unsubscribe = nodesApi.onRegistryChanged((defs: unknown[]) => {
-      const entries = (defs as NodeDefinition[]).map(definitionToEntry)
-      setPluginEntries(entries)
+      setPluginDefinitions(defs as NodeDefinition[])
     })
 
     return unsubscribe
-  }, [])
+  }, [setPluginDefinitions])
 
+  // Derive palette entries from the central definition store
   const allEntries = useMemo(() => {
-    // Deduplicate: built-in entries take precedence over plugin entries
-    const builtInTypes = new Set(BUILT_IN_PALETTE.map(e => e.type))
-    const uniquePlugins = pluginEntries.filter(e => !builtInTypes.has(e.type))
-    return [...BUILT_IN_PALETTE, ...uniquePlugins]
-  }, [pluginEntries])
+    return definitions.map(definitionToEntry)
+  }, [definitions])
 
   const filtered = useMemo(
     () => filterEntries(allEntries, query),

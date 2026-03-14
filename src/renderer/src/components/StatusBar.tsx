@@ -10,6 +10,7 @@ export default function StatusBar(): React.JSX.Element {
 
   async function loadAppInfo(): Promise<void> {
     try {
+      if (!window.electron) throw new Error('No electron API')
       const v = await window.electron.getVersion()
       const p = await window.electron.getPlatform()
       setVersion(v)

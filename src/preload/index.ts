@@ -5,6 +5,7 @@ import type { ElectronAPI, SaveCredentialRequest, WorkflowFile, GalleryItem, Gal
 /** Channels that the renderer is allowed to listen on. */
 const ALLOWED_LISTENER_CHANNELS = [
   'app:open-settings',
+  'app:toggle-minimap',
   IPC_CHANNELS.WORKFLOW_MENU_SAVE,
   IPC_CHANNELS.WORKFLOW_MENU_SAVE_AS,
   IPC_CHANNELS.WORKFLOW_MENU_OPEN,

@@ -151,10 +151,23 @@ function PortCountFooter({
 // ─── GenericNodeInner ─────────────────────────────────────────────────────────
 
 function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element {
-  const { definition } = data as GenericNodeData
+  const definition = (data as GenericNodeData)?.definition
   const { setNodeExecutionState, setNodeParamValue, getOrCreateNodeRuntime, nodes } =
     useFlowStore()
   const runtime = getOrCreateNodeRuntime(id)
+
+  // Fallback for nodes without a definition (e.g. loaded from old workflow files)
+  if (!definition) {
+    const label = (data as Record<string, unknown>)?.label ?? 'Unknown Node'
+    return (
+      <div
+        className="bg-node-bg rounded-xl px-4 py-3 shadow-lg"
+        style={{ border: selected ? '1px solid #89b4fa' : '1px solid #2a2a2a', minWidth: 160 }}
+      >
+        <span className="text-xs text-gray-400">{String(label)}</span>
+      </div>
+    )
+  }
 
   const handleRun = useCallback(() => {
     setNodeExecutionState(id, 'running')

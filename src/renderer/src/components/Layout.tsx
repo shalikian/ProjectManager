@@ -102,14 +102,18 @@ export default function Layout(): React.JSX.Element {
 
   // Listen for the main-process "open settings" IPC event (File → Settings menu)
   useEffect(() => {
-    window.electron.ipcRenderer.on('app:open-settings', openSettings)
-    return () => window.electron.ipcRenderer.off('app:open-settings', openSettings)
+    const ipc = window.electron?.ipcRenderer
+    if (!ipc) return
+    ipc.on('app:open-settings', openSettings)
+    return () => ipc.off('app:open-settings', openSettings)
   }, [openSettings])
 
   // Listen for the main-process "toggle minimap" IPC event (View → Toggle MiniMap menu)
   useEffect(() => {
-    window.electron.ipcRenderer.on('app:toggle-minimap', toggleMiniMap)
-    return () => window.electron.ipcRenderer.off('app:toggle-minimap', toggleMiniMap)
+    const ipc = window.electron?.ipcRenderer
+    if (!ipc) return
+    ipc.on('app:toggle-minimap', toggleMiniMap)
+    return () => ipc.off('app:toggle-minimap', toggleMiniMap)
   }, [toggleMiniMap])
 
   return (

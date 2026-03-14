@@ -17,7 +17,7 @@ import { useUiStore } from '../store/ui-store'
 import { buildNodeTypes } from './nodes/nodeTypeRegistry'
 import TypedEdge from './TypedEdge'
 import { validateConnection, buildTypedEdgeData } from '../utils/connection-utils'
-import type { NodeDefinition } from '../../../shared/types'
+import { useDefinitionStore } from '../store/definition-store'
 import { useCanvasInteractions } from './canvas/useCanvasInteractions'
 import ContextMenu from './canvas/ContextMenu'
 import TabSearch from './canvas/TabSearch'
@@ -33,9 +33,6 @@ const CONNECTION_LINE_STYLE: React.CSSProperties = {
 
 /** Duration in ms for the connection-rejected animation. */
 const REJECTION_ANIMATION_MS = 350
-
-/** Currently registered plugin definitions passed from outside, or empty array. */
-const EMPTY_DEFINITIONS: NodeDefinition[] = []
 
 /** Edge types registered with React Flow. */
 const EDGE_TYPES: EdgeTypes = { typed: TypedEdge }
@@ -114,7 +111,8 @@ export default function Canvas(): React.JSX.Element {
     connectionAcceptedRef.current = false
   }, [])
 
-  const nodeTypes = useMemo(() => buildNodeTypes(EMPTY_DEFINITIONS), [])
+  const { definitions } = useDefinitionStore()
+  const nodeTypes = useMemo(() => buildNodeTypes(definitions), [definitions])
 
   return (
     <div
