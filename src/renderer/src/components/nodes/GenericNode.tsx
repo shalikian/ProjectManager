@@ -1,7 +1,8 @@
 import React, { memo, useCallback } from 'react'
 import { NodeProps, Position } from '@xyflow/react'
-import type { NodeDefinition, NodeExecutionState, ParameterDefinition } from '../../../../shared/types'
+import type { NodeDefinition, NodeExecutionState, ParameterDefinition, PortDefinition } from '../../../../shared/types'
 import { useFlowStore } from '../../store/flow-store'
+import { hasImageOutput, IMAGE_NODE_WIDTH, UTILITY_NODE_WIDTH } from '../../store/flow-node-factory'
 import NodeHeader from './NodeHeader'
 import NodeHandles from './NodeHandles'
 import NodeImagePreview from './NodeImagePreview'
@@ -12,8 +13,6 @@ export interface GenericNodeData {
   definition: NodeDefinition
   [key: string]: unknown
 }
-
-const DEFAULT_WIDTH = 280
 
 // ─── RunButton ────────────────────────────────────────────────────────────────
 
@@ -113,6 +112,42 @@ function PortLabels({
   )
 }
 
+// ─── PortCountFooter ──────────────────────────────────────────────────────────
+
+/**
+ * Counts ports by type and renders small gray badges at the bottom of the node.
+ * Example: "1 image  2 text"
+ */
+function PortCountFooter({
+  inputs,
+  outputs
+}: {
+  inputs: PortDefinition[]
+  outputs: PortDefinition[]
+}): React.JSX.Element {
+  const allPorts = [...inputs, ...outputs]
+  if (allPorts.length === 0) return <></>
+
+  // Count occurrences of each port type across inputs + outputs
+  const counts = new Map<string, number>()
+  for (const port of allPorts) {
+    const key = port.type.toLowerCase()
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+
+  const badges = Array.from(counts.entries()).map(([type, count]) => (
+    <span key={type} className="text-[9px] text-gray-600">
+      {count} {type}
+    </span>
+  ))
+
+  return (
+    <div className="flex gap-2 px-3 py-1 border-t border-node-border">
+      {badges}
+    </div>
+  )
+}
+
 // ─── GenericNodeInner ─────────────────────────────────────────────────────────
 
 function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element {
@@ -142,8 +177,14 @@ function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element 
   const instanceNumber = instanceIndex >= 0 ? instanceIndex + 1 : 1
   const instanceLabel = `${definition.name} ${instanceNumber}`
 
-  const nodeWidth = definition.width ?? DEFAULT_WIDTH
-  const borderClass = selected ? 'border-node-selected' : 'border-node-border'
+  // Width: explicit definition.width > IMAGE-aware default > utility default
+  const nodeWidth =
+    definition.width ?? (hasImageOutput(definition) ? IMAGE_NODE_WIDTH : UTILITY_NODE_WIDTH)
+
+  // Border: selected nodes glow blue, others use the subtle dark border
+  const borderStyle = selected
+    ? { border: '1px solid #89b4fa', boxShadow: '0 0 0 2px rgba(137,180,250,0.25)' }
+    : { border: '1px solid #2a2a2a' }
 
   return (
     // Outer wrapper: relative so the instance label can be absolutely positioned above
@@ -156,9 +197,10 @@ function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element 
         {instanceLabel}
       </div>
 
-      {/* Node card */}
+      {/* Node card: rounded-xl for ~12px border-radius, very subtle border */}
       <div
-        className={`node-card ${borderClass} flex flex-col overflow-hidden`}
+        className="bg-node-bg rounded-xl flex flex-col overflow-hidden shadow-lg"
+        style={borderStyle}
         data-testid={`generic-node-${definition.id}`}
       >
         <NodeHeader
@@ -182,6 +224,12 @@ function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element 
         <NodeImagePreview
           outputs={definition.outputs}
           imagePreviews={runtime.imagePreviews}
+        />
+
+        {/* Port count footer badges */}
+        <PortCountFooter
+          inputs={definition.inputs}
+          outputs={definition.outputs}
         />
 
         {/* Bottom bar: run button aligned to the right */}
