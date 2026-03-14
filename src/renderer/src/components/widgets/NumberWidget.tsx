@@ -16,7 +16,7 @@ export default function NumberWidget({
 
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[10px] text-gray-400 truncate">{param.label}</label>
+      <label className="text-[10px] text-gray-500 truncate">{param.label}</label>
       <input
         type="number"
         value={numValue}
@@ -24,9 +24,9 @@ export default function NumberWidget({
         max={param.max}
         step={param.step ?? 1}
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full bg-canvas-bg border border-node-border rounded px-2 py-1
-                   text-xs text-white focus:outline-none focus:border-node-selected
-                   nodrag"
+        className="w-full bg-[#141414] border border-[#333333] rounded px-2 py-1
+                   text-[11px] text-white focus:outline-none focus:border-[#89b4fa]
+                   transition-colors duration-150 nodrag"
       />
     </div>
   )
