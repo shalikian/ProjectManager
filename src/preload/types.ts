@@ -105,6 +105,49 @@ export interface GalleryAPI {
   onItemSaved: (callback: (item: GalleryItem) => void) => () => void
 }
 
+/** Engine execution API exposed to the renderer. */
+export interface EngineAPI {
+  /** Run a single node and its upstream dependencies. */
+  runNode: (runId: string, nodeId: string, graph: EngineGraph) => Promise<{ ok: boolean }>
+  /** Run the entire workflow graph. */
+  runAll: (runId: string, graph: EngineGraph) => Promise<{ ok: boolean }>
+  /** Cancel a running execution. */
+  cancel: (runId: string) => Promise<{ ok: boolean }>
+  /** Subscribe to engine progress events. Returns a cleanup function. */
+  onProgress: (callback: (event: EngineProgressEvent) => void) => () => void
+}
+
+/** Workflow graph passed to the engine (renderer-facing shape). */
+export interface EngineGraph {
+  nodes: EngineGraphNode[]
+  edges: EngineGraphEdge[]
+}
+
+export interface EngineGraphNode {
+  id: string
+  type: string
+  parameters: Record<string, unknown>
+}
+
+export interface EngineGraphEdge {
+  id: string
+  source: string
+  sourceHandle: string
+  target: string
+  targetHandle: string
+}
+
+/** Progress event pushed from the engine to the renderer. */
+export interface EngineProgressEvent {
+  type: 'node-started' | 'node-progress' | 'node-completed' | 'node-error' | 'run-completed'
+  runId: string
+  nodeId?: string
+  percent?: number
+  message?: string
+  error?: string
+  outputs?: Record<string, unknown>
+}
+
 /** Image import result returned from main process. */
 export interface ImageLoadResult {
   dataUrl: string
@@ -126,6 +169,7 @@ export interface ElectronAPI {
   workflow: WorkflowAPI
   nodes: NodesAPI
   image: ImageAPI
+  engine: EngineAPI
   gallery: GalleryAPI
   ipcRenderer: IpcListenerBridge
 }

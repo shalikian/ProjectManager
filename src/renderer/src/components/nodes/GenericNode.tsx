@@ -169,12 +169,39 @@ function GenericNodeInner({ id, data, selected }: NodeProps): React.JSX.Element 
     )
   }
 
-  const handleRun = useCallback(() => {
+  const handleRun = useCallback(async () => {
+    const engine = window.electron?.engine
+    if (!engine) {
+      console.error('[GenericNode] Engine API not available')
+      return
+    }
+
     setNodeExecutionState(id, 'running')
-    // Simulate async execution for now
-    setTimeout(() => {
-      setNodeExecutionState(id, 'completed')
-    }, 1500)
+
+    // Build engine graph from current React Flow state
+    const { nodes: allNodes, edges: allEdges, nodeRuntimeStates } = useFlowStore.getState()
+    const graph = {
+      nodes: allNodes.map(n => ({
+        id: n.id,
+        type: (n.data as GenericNodeData).definition?.id ?? n.type ?? 'unknown',
+        parameters: nodeRuntimeStates[n.id]?.paramValues ?? {}
+      })),
+      edges: allEdges.map(e => ({
+        id: e.id,
+        source: e.source,
+        sourceHandle: e.sourceHandle ?? '',
+        target: e.target,
+        targetHandle: e.targetHandle ?? ''
+      }))
+    }
+
+    const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    try {
+      await engine.runNode(runId, id, graph)
+    } catch (err) {
+      console.error('[GenericNode] Engine run failed:', err)
+      setNodeExecutionState(id, 'error')
+    }
   }, [id, setNodeExecutionState])
 
   // Split parameters: select-type go to header, others go to body

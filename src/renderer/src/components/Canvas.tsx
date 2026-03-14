@@ -22,6 +22,7 @@ import { useCanvasInteractions } from './canvas/useCanvasInteractions'
 import ContextMenu from './canvas/ContextMenu'
 import TabSearch from './canvas/TabSearch'
 import WorkflowController from './workflow/WorkflowController'
+import { useEngineProgress } from '../hooks/useEngineProgress'
 
 const SNAP_GRID: [number, number] = [16, 16]
 
@@ -71,6 +72,7 @@ export default function Canvas(): React.JSX.Element {
   const canvasWrapperRef = useRef<HTMLDivElement>(null)
 
   const interactions = useCanvasInteractions(canvasWrapperRef)
+  useEngineProgress()
 
   const isValidConnection = useCallback(
     (connection: Connection) => validateConnection(connection, nodes, edges),

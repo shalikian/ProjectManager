@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import type { ElectronAPI, SaveCredentialRequest, WorkflowFile, GalleryItem, GallerySaveRequest } from './types'
+import type { ElectronAPI, SaveCredentialRequest, WorkflowFile, GalleryItem, GallerySaveRequest, EngineGraph, EngineProgressEvent } from './types'
 
 /** Channels that the renderer is allowed to listen on. */
 const ALLOWED_LISTENER_CHANNELS = [
@@ -55,6 +55,20 @@ const api: ElectronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.IMAGE_OPEN_DIALOG),
     readClipboard: () =>
       ipcRenderer.invoke(IPC_CHANNELS.IMAGE_READ_CLIPBOARD)
+  },
+  engine: {
+    runNode: (runId: string, nodeId: string, graph: EngineGraph) =>
+      ipcRenderer.invoke(IPC_CHANNELS.ENGINE_RUN_NODE, { runId, nodeId, graph }),
+    runAll: (runId: string, graph: EngineGraph) =>
+      ipcRenderer.invoke(IPC_CHANNELS.ENGINE_RUN, { runId, graph }),
+    cancel: (runId: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.ENGINE_CANCEL, runId),
+    onProgress: (callback: (event: EngineProgressEvent) => void) => {
+      const handler = (_event: Electron.IpcRendererEvent, progress: EngineProgressEvent): void =>
+        callback(progress)
+      ipcRenderer.on(IPC_CHANNELS.ENGINE_PROGRESS, handler)
+      return () => ipcRenderer.off(IPC_CHANNELS.ENGINE_PROGRESS, handler)
+    }
   },
   gallery: {
     list: () => ipcRenderer.invoke(IPC_CHANNELS.GALLERY_LIST),
