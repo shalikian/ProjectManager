@@ -8,16 +8,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Custom dark theme palette
+        // Custom dark theme palette — darker flat aesthetic
         canvas: {
-          bg: '#1a1a2e',
-          surface: '#16213e',
-          border: '#0f3460'
+          bg: '#0d0d0d',
+          surface: '#141414',
+          border: '#2a2a2a'
         },
         node: {
-          bg: '#1e1e2e',
-          header: '#313244',
-          border: '#45475a',
+          bg: '#1a1a1a',
+          header: '#222222',
+          border: '#333333',
           selected: '#89b4fa'
         }
       }
