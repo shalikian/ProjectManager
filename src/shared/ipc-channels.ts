@@ -36,6 +36,9 @@ export const IPC_CHANNELS = {
   WORKFLOW_MENU_NEW: 'workflow:menu-new',
   WORKFLOW_MENU_OPEN_RECENT: 'workflow:menu-open-recent',
 
+  // UI toggle channels
+  APP_TOGGLE_MINIMAP: 'app:toggle-minimap',
+
   // Gallery / auto-save channels
   GALLERY_LIST: 'gallery:list',
   GALLERY_SAVE_IMAGE: 'gallery:save-image',

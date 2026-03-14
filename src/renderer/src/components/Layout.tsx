@@ -91,13 +91,26 @@ function GalleryToggleButton(): React.JSX.Element {
 }
 
 export default function Layout(): React.JSX.Element {
-  const { leftPanelOpen, rightPanelOpen, settingsOpen, openSettings, closeSettings } = useUiStore()
+  const {
+    leftPanelOpen,
+    rightPanelOpen,
+    settingsOpen,
+    openSettings,
+    closeSettings,
+    toggleMiniMap
+  } = useUiStore()
 
   // Listen for the main-process "open settings" IPC event (File → Settings menu)
   useEffect(() => {
     window.electron.ipcRenderer.on('app:open-settings', openSettings)
     return () => window.electron.ipcRenderer.off('app:open-settings', openSettings)
   }, [openSettings])
+
+  // Listen for the main-process "toggle minimap" IPC event (View → Toggle MiniMap menu)
+  useEffect(() => {
+    window.electron.ipcRenderer.on('app:toggle-minimap', toggleMiniMap)
+    return () => window.electron.ipcRenderer.off('app:toggle-minimap', toggleMiniMap)
+  }, [toggleMiniMap])
 
   return (
     <div className="flex flex-col h-screen w-screen bg-canvas-bg text-white overflow-hidden">

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-03-14T09:10:00Z",
+  "agent": "dev",
+  "issue": "#54",
+  "category": "pattern",
+  "summary": "Canvas chrome subtlety: grid 0.5px dots at #1f1f1f, controls scale(0.85), minimap toggled via IPC+zustand",
+  "detail": "Issue #54 updated canvas visual chrome to match weavy.ai reference. Key changes: (1) Background dot size reduced from 1 to 0.5, color changed from #313244 to #1f1f1f (near-invisible on #0d0d0d bg), (2) MiniMap removed from default render; controlled by showMiniMap boolean in ui-store (default false), (3) Controls wrapped in style={{ transform: 'scale(0.85)', transformOrigin: 'bottom left' }} to appear smaller, (4) View menu in main/index.ts gets 'Toggle MiniMap' item (CmdOrCtrl+M) that sends IPC_CHANNELS.APP_TOGGLE_MINIMAP, (5) Layout.tsx listens for app:toggle-minimap IPC event and calls toggleMiniMap from ui-store, (6) globals.css controls updated to #141414 bg and smaller SVG icon sizing. Pattern: for IPC-driven UI toggles, add channel to shared/ipc-channels.ts, send from main/index.ts menu, receive in Layout.tsx useEffect, store state in ui-store.ts.",
+  "tags": ["canvas", "react-flow", "minimap", "ui-store", "ipc", "css", "electron-menu"]
+}

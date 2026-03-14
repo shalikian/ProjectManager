@@ -110,7 +110,13 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
         { role: 'forceReload' },
         { role: 'toggleDevTools' },
         { type: 'separator' },
-        { role: 'togglefullscreen' }
+        { role: 'togglefullscreen' },
+        { type: 'separator' },
+        {
+          label: 'Toggle MiniMap',
+          accelerator: 'CmdOrCtrl+M',
+          click: () => mainWindow.webContents.send(IPC_CHANNELS.APP_TOGGLE_MINIMAP)
+        }
       ]
     }
   ]
