@@ -145,7 +145,16 @@ app.whenReady().then(() => {
   const menu = buildAppMenu(mainWindow)
   Menu.setApplicationMenu(menu)
 
-  registerEngineHandlers(ipcMain, mainWindow.webContents, key => store.getSecret(key))
+  // Map common environment-variable-style key names to credential store keys
+  const SECRET_KEY_ALIASES: Record<string, string> = {
+    GOOGLE_API_KEY: 'google-vertex-ai:api-key',
+    GOOGLE_PROJECT_ID: 'google-vertex-ai:project-id',
+    GOOGLE_REGION: 'google-vertex-ai:region'
+  }
+  registerEngineHandlers(ipcMain, mainWindow.webContents, key => {
+    const storeKey = SECRET_KEY_ALIASES[key] ?? key
+    return store.getSecret(storeKey)
+  })
   registerGalleryHandlers(ipcMain, mainWindow.webContents)
 
   // Set up registry push so renderer gets notified when plugins load/change
