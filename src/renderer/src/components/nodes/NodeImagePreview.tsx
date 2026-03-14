@@ -20,12 +20,13 @@ function ImagePreviewItem({
         <img
           src={dataUrl}
           alt={port.label}
-          className="w-full rounded border border-node-border object-contain max-h-32"
+          className="w-full rounded-lg border border-node-border object-contain"
         />
       ) : (
         <div
-          className="w-full h-20 rounded border border-node-border bg-canvas-bg
+          className="w-full rounded-lg border border-node-border bg-canvas-bg
                      flex items-center justify-center text-gray-600 text-[10px]"
+          style={{ minHeight: '240px' }}
           aria-label={`${port.label} preview placeholder`}
         >
           No image
