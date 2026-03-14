@@ -31,12 +31,14 @@ function PortHandle({
       id={port.id}
       type={handleType}
       position={position}
+      className="node-port-handle"
       style={{
         backgroundColor: portType.color,
         top: `${topPercent}%`,
-        border: '2px solid rgba(0,0,0,0.4)',
-        width: 10,
-        height: 10
+        border: '1px solid rgba(0,0,0,0.3)',
+        borderRadius: '50%',
+        width: 7,
+        height: 7
       }}
       title={`${port.label} (${portType.label})`}
     />

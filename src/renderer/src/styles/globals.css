@@ -43,6 +43,33 @@
   }
 }
 
+/* ─── Node port handle styles ─────────────────────────────────── */
+
+/**
+ * Circular port handles: 7x7px circles positioned on the node edge.
+ * React Flow places handles at -4px by default (half of 8px default size).
+ * With our 7px size, we override to -3.5px so the circle sits exactly
+ * half-outside the node boundary.
+ */
+.node-port-handle {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.node-port-handle:hover {
+  transform: translate(-50%, -50%) scale(1.4);
+  box-shadow: 0 0 5px 1px currentColor;
+}
+
+/* React Flow positions left handles at left: -4px by default.
+   Override to -3.5px to keep 7px circles perfectly centered on the edge. */
+.react-flow__handle-left.node-port-handle {
+  left: -3.5px;
+}
+
+.react-flow__handle-right.node-port-handle {
+  right: -3.5px;
+}
+
 /* ─── Connection drag handle states ──────────────────────────── */
 
 /**
