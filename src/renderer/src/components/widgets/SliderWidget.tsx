@@ -20,8 +20,8 @@ export default function SliderWidget({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <label className="text-[10px] text-gray-400 truncate">{param.label}</label>
-        <span className="text-[10px] text-gray-300 ml-2 shrink-0">{numValue}</span>
+        <label className="text-[10px] text-gray-500 truncate">{param.label}</label>
+        <span className="text-[10px] text-[#89b4fa] ml-2 shrink-0 font-mono">{numValue}</span>
       </div>
       <input
         type="range"
@@ -30,7 +30,7 @@ export default function SliderWidget({
         step={step}
         value={numValue}
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full h-1.5 accent-blue-400 nodrag"
+        className="w-full h-1 accent-[#89b4fa] nodrag cursor-pointer"
       />
     </div>
   )
