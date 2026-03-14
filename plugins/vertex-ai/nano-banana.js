@@ -2,11 +2,11 @@
 
 const { requireApiKey, base64ToBuffer, reportProgress, checkAbort, formatApiError } = require('./helpers')
 
-// Model selector options
+// Model selector options — use current Gemini API model IDs
 const MODEL_OPTIONS = [
-  { value: 'gemini-2.0-flash-preview-image-generation', label: 'Nano Banana' },
-  { value: 'gemini-2.0-flash-exp', label: 'Nano Banana Pro' },
-  { value: 'gemini-2.0-pro-exp', label: 'Nano Banana 2' }
+  { value: 'gemini-2.0-flash-exp', label: 'Nano Banana (Flash)' },
+  { value: 'gemini-2.0-flash', label: 'Nano Banana (Flash Stable)' },
+  { value: 'gemini-2.5-flash-preview-04-17', label: 'Nano Banana (2.5 Flash)' }
 ]
 
 const ASPECT_RATIO_OPTIONS = [
