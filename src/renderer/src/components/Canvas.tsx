@@ -13,6 +13,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useFlowStore } from '../store/flow-store'
+import { useUiStore } from '../store/ui-store'
 import { buildNodeTypes } from './nodes/nodeTypeRegistry'
 import TypedEdge from './TypedEdge'
 import { validateConnection, buildTypedEdgeData } from '../utils/connection-utils'
@@ -67,6 +68,7 @@ export function triggerRejectionAnimation(el: HTMLElement, durationMs: number): 
 
 export default function Canvas(): React.JSX.Element {
   const { nodes, edges, onNodesChange, onEdgesChange, setEdges } = useFlowStore()
+  const { showMiniMap } = useUiStore()
   const isDraggingRef = useRef(false)
   const connectionAcceptedRef = useRef(false)
   const canvasWrapperRef = useRef<HTMLDivElement>(null)
@@ -151,13 +153,18 @@ export default function Canvas(): React.JSX.Element {
         maxZoom={4}
         deleteKeyCode="Delete"
       >
-        <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#313244" />
-        <Controls showInteractive={false} />
-        <MiniMap
-          nodeColor="#313244"
-          maskColor="rgba(26, 26, 46, 0.8)"
-          style={{ background: '#1e1e2e' }}
+        <Background variant={BackgroundVariant.Dots} gap={16} size={0.5} color="#1f1f1f" />
+        <Controls
+          showInteractive={false}
+          style={{ transform: 'scale(0.85)', transformOrigin: 'bottom left' }}
         />
+        {showMiniMap && (
+          <MiniMap
+            nodeColor="#313244"
+            maskColor="rgba(13, 13, 13, 0.8)"
+            style={{ background: '#141414' }}
+          />
+        )}
         <WorkflowController />
       </ReactFlow>
 

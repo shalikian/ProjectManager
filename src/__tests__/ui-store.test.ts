@@ -4,7 +4,7 @@ import { useUiStore } from '../renderer/src/store/ui-store'
 describe('useUiStore', () => {
   // Reset store state between tests
   beforeEach(() => {
-    useUiStore.setState({ leftPanelOpen: true, rightPanelOpen: true })
+    useUiStore.setState({ leftPanelOpen: true, rightPanelOpen: true, showMiniMap: false })
   })
 
   // Happy path: default state has both panels open
@@ -62,5 +62,44 @@ describe('useUiStore', () => {
     expect(useUiStore.getState().rightPanelOpen).toBe(false)
     setRightPanel(true)
     expect(useUiStore.getState().rightPanelOpen).toBe(true)
+  })
+})
+
+describe('useUiStore — minimap', () => {
+  // Reset store state between tests
+  beforeEach(() => {
+    useUiStore.setState({ showMiniMap: false })
+  })
+
+  // Happy path: minimap is hidden by default
+  it('initializes with showMiniMap false', () => {
+    const state = useUiStore.getState()
+    expect(state.showMiniMap).toBe(false)
+  })
+
+  // Edge case 1: toggleMiniMap shows the minimap
+  it('toggleMiniMap turns showMiniMap on when it was off', () => {
+    const { toggleMiniMap } = useUiStore.getState()
+    toggleMiniMap()
+    expect(useUiStore.getState().showMiniMap).toBe(true)
+  })
+
+  // Edge case 2: double-toggle returns minimap to hidden
+  it('double toggleMiniMap returns showMiniMap to false', () => {
+    const { toggleMiniMap } = useUiStore.getState()
+    toggleMiniMap()
+    useUiStore.getState().toggleMiniMap()
+    expect(useUiStore.getState().showMiniMap).toBe(false)
+  })
+
+  // Edge case 3: toggleMiniMap is independent of panel state
+  it('toggling minimap does not affect panel open states', () => {
+    useUiStore.setState({ leftPanelOpen: true, rightPanelOpen: true })
+    const { toggleMiniMap } = useUiStore.getState()
+    toggleMiniMap()
+    const state = useUiStore.getState()
+    expect(state.showMiniMap).toBe(true)
+    expect(state.leftPanelOpen).toBe(true)
+    expect(state.rightPanelOpen).toBe(true)
   })
 })
