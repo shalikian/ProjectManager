@@ -127,6 +127,7 @@ app.whenReady().then(() => {
   registerCredentialHandlers(ipcMain, store)
 
   const mainWindow = createWindow()
+  if (is.dev) mainWindow.webContents.openDevTools()
   const menu = buildAppMenu(mainWindow)
   Menu.setApplicationMenu(menu)
 

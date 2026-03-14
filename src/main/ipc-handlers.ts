@@ -1,6 +1,12 @@
 import { IpcMain, WebContents } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { NodeRegistry } from './plugins/node-registry'
+import type { NodeDefinition } from '../shared/types'
+
+/** Strip all non-serializable properties (functions, etc.) before sending over IPC. */
+function toSerializable(def: NodeDefinition): Record<string, unknown> {
+  return JSON.parse(JSON.stringify(def))
+}
 
 /**
  * Registers all main-process IPC handlers.
@@ -25,11 +31,12 @@ function registerNodeHandlers(ipcMain: IpcMain): void {
   const registry = NodeRegistry.getInstance()
 
   ipcMain.handle(IPC_CHANNELS.NODES_LIST_ALL, () => {
-    return registry.listAll()
+    return registry.listAll().map(toSerializable)
   })
 
   ipcMain.handle(IPC_CHANNELS.NODES_GET_BY_ID, (_event, id: string) => {
-    return registry.getById(id) ?? null
+    const def = registry.getById(id)
+    return def ? toSerializable(def) : null
   })
 }
 
@@ -39,9 +46,9 @@ function registerNodeHandlers(ipcMain: IpcMain): void {
  */
 export function setupRegistryPush(webContents: WebContents): void {
   const registry = NodeRegistry.getInstance()
-  registry.on('changed', (definitions) => {
+  registry.on('changed', (definitions: NodeDefinition[]) => {
     if (!webContents.isDestroyed()) {
-      webContents.send(IPC_CHANNELS.NODES_REGISTRY_CHANGED, definitions)
+      webContents.send(IPC_CHANNELS.NODES_REGISTRY_CHANGED, definitions.map(toSerializable))
     }
   })
 }
